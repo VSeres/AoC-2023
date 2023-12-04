@@ -20,13 +20,10 @@ func Solve() {
 		sumPartOne int
 		sumPartTwo int
 	)
-	count := 1
 	for scanner.Scan() {
 		line := scanner.Text()
 		sumPartOne += getNumber(line)
-		num := getNumberPEG(line)
-		sumPartTwo += num
-		count++
+		sumPartTwo += getNumberPEG(line)
 	}
 	fmt.Printf("Part one solution: %d\nPart two solution: %d \n", sumPartOne, sumPartTwo)
 }
