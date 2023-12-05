@@ -22,6 +22,13 @@ func (r rule) apply(factor int) int {
 	return factor
 }
 
+func (r rule) revers(dest int) int {
+	if r.destination+r.span <= dest || r.destination > dest {
+		return dest
+	}
+	return dest - r.destination + r.source
+}
+
 func Solve() {
 	file, err := os.Open("day5/input.txt")
 	if err != nil {
@@ -36,8 +43,8 @@ func Solve() {
 	scanner.Scan()
 
 	seedLine := scanner.Text()
-	i := strings.Index(seedLine, ":") + 2
-	seedLine = seedLine[i:]
+	cutIndex := strings.Index(seedLine, ":") + 2
+	seedLine = seedLine[cutIndex:]
 
 	for _, v := range strings.Split(seedLine, " ") {
 		num, err := strconv.Atoi(v)
@@ -49,20 +56,54 @@ func Solve() {
 
 	scanner.Scan() // empty line
 
-	partOne := lowestLocation(scanner, seeds)
+	rules := make([][]rule, 7)
 
-	// partTwoSeeds := make([]int, 0)
-	// for i := 0; i < len(seeds); i += 2 {
-	// 	for seed := seeds[i]; seed < seeds[i]+seeds[i+1]; seed++ {
-	// 		partTwoSeeds = append(partTwoSeeds, seed)
-	// 	}
-	// }
-	// parTwo := lowestLocation(scanner, partTwoSeeds)
+	seedsCopy := make([]int, len(seeds))
+	copy(seedsCopy, seeds)
 
-	fmt.Printf("Lowest location in:\n\tpart one: %d\n\tpart two: %d\n", partOne, -1)
+	partOne := lowestLocation(scanner, seedsCopy, rules)
+
+	partTwo := lowestLocasonBackwards(rules, seeds)
+
+	fmt.Printf("Lowest location in:\n\tpart one: %d\n\tpart two: %d\n", partOne, partTwo)
 }
 
-func lowestLocation(scanner *bufio.Scanner, seeds []int) int {
+func lowestLocasonBackwards(rules [][]rule, sed []int) int {
+
+	for i, j := 0, len(rules)-1; i < j; i, j = i+1, j-1 {
+		rules[i], rules[j] = rules[j], rules[i]
+	}
+
+	location := 0
+	var num int
+	for !inRange(sed, num) {
+		location++
+		num = location
+
+		for _, ruleList := range rules {
+			for _, rule := range ruleList {
+
+				newNum := rule.revers(num)
+				if newNum != num {
+					num = newNum
+					break
+				}
+			}
+		}
+	}
+	return location
+}
+
+func inRange(seed []int, num int) bool {
+	for i := 0; i < len(seed); i += 2 {
+		if num >= seed[i] && seed[i]+seed[i+1] > num {
+			return true
+		}
+	}
+	return false
+}
+
+func lowestLocation(scanner *bufio.Scanner, seeds []int, rules [][]rule) int {
 	ruleList := make([]rule, 0)
 	state := 0
 	for state < 7 {
@@ -77,6 +118,11 @@ func lowestLocation(scanner *bufio.Scanner, seeds []int) int {
 			fmt.Sscan(line, &newRule.destination, &newRule.source, &newRule.span)
 			ruleList = append(ruleList, newRule)
 		}
+
+		ruleListCopy := make([]rule, len(ruleList))
+		copy(ruleListCopy, ruleList)
+
+		rules[state] = ruleListCopy
 
 		for sedIndex, sed := range seeds {
 			for _, rule := range ruleList {
