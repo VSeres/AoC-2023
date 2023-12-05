@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func Solver() {
+func Solve() {
 	file, err := os.Open("day3/input.txt")
 	if err != nil {
 		panic(err)

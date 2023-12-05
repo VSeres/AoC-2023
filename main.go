@@ -23,7 +23,9 @@ func main() {
 	case 2:
 		day2.Solve()
 	case 3:
-		day3.Solver()
+		day3.Solve()
+	case 4:
+		day4.Solve()
 	default:
 		fmt.Printf("day %d not implemented\n", day)
 	}
