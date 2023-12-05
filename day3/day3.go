@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func Solve() {
+func Solve(silent bool) {
 	file, err := os.Open("day3/input.txt")
 	if err != nil {
 		panic(err)
@@ -19,7 +19,7 @@ func Solve() {
 		line := scanner.Text()
 		engine = append(engine, []byte(line))
 	}
-	partOne(engine)
+	partOne(engine, silent)
 }
 
 func specialChar(char byte) bool {
@@ -37,7 +37,7 @@ type symbol struct { // for part two
 	char byte
 }
 
-func partOne(engine [][]byte) {
+func partOne(engine [][]byte, silent bool) {
 	gears := make(map[point][]int, 0)
 	result := 0
 	for y, line := range engine {
@@ -114,7 +114,6 @@ func partOne(engine [][]byte) {
 			}
 		}
 	}
-	fmt.Println(result)
 	// part two
 	sum := 0
 	for _, partNumbers := range gears {
@@ -123,5 +122,9 @@ func partOne(engine [][]byte) {
 		}
 		sum += partNumbers[0] * partNumbers[1]
 	}
-	fmt.Println(sum)
+	if !silent {
+		fmt.Println(result)
+		fmt.Println(sum)
+	}
+
 }

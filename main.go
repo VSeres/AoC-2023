@@ -8,6 +8,7 @@ import (
 	"AoC-2023/day5"
 	"flag"
 	"fmt"
+	"time"
 )
 
 var day int
@@ -18,20 +19,21 @@ func init() {
 
 func main() {
 	flag.Parse()
-
+	start := time.Now()
 	switch day {
 	case 1:
-		day1.Solve()
+		day1.Solve(false)
 	case 2:
-		day2.Solve()
+		day2.Solve(false)
 	case 3:
-		day3.Solve()
+		day3.Solve(false)
 	case 4:
-		day4.Solve()
+		day4.Solve(false)
 	case 5:
-		day5.Solve()
+		day5.Solve(false)
 	default:
 		fmt.Printf("day %d not implemented\n", day)
 	}
 
+	defer fmt.Printf("Executon took %s\n", time.Since(start))
 }

@@ -29,7 +29,7 @@ func (r rule) revers(dest int) int {
 	return dest - r.destination + r.source
 }
 
-func Solve() {
+func Solve(silent bool) {
 	file, err := os.Open("day5/input.txt")
 	if err != nil {
 		panic(err)
@@ -65,7 +65,9 @@ func Solve() {
 
 	partTwo := lowestLocasonBackwards(rules, seeds)
 
-	fmt.Printf("Lowest location in:\n\tpart one: %d\n\tpart two: %d\n", partOne, partTwo)
+	if !silent {
+		fmt.Printf("Lowest location in:\n\tpart one: %d\n\tpart two: %d\n", partOne, partTwo)
+	}
 }
 
 func lowestLocasonBackwards(rules [][]rule, sed []int) int {

@@ -14,7 +14,7 @@ var maxCount = map[string]int{
 	"blue":  14,
 }
 
-func Solve() {
+func Solve(silent bool) {
 	file, err := os.Open("day2/input.txt")
 	if err != nil {
 		panic(err)
@@ -70,6 +70,8 @@ func Solve() {
 
 		gameId++
 	}
-	fmt.Println("Part one result: ", result)
-	fmt.Println("Part two result: ", powerSum)
+	if !silent {
+		fmt.Println("Part one result: ", result)
+		fmt.Println("Part two result: ", powerSum)
+	}
 }

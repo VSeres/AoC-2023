@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func Solve() {
+func Solve(silent bool) {
 	file, err := os.Open("day4/input.txt")
 	if err != nil {
 		panic(err)
@@ -72,6 +72,7 @@ func Solve() {
 	for _, v := range cardCount {
 		sum += v
 	}
-
-	fmt.Printf("Part one solustion: %d\nTotal number of cards: %d\n", result, sum)
+	if !silent {
+		fmt.Printf("Part one solustion: %d\nTotal number of cards: %d\n", result, sum)
+	}
 }

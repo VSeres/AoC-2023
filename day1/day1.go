@@ -8,7 +8,7 @@ import (
 	"unicode"
 )
 
-func Solve() {
+func Solve(silent bool) {
 	file, err := os.Open("day1/input.txt")
 	if err != nil {
 		panic(err)
@@ -25,7 +25,10 @@ func Solve() {
 		sumPartOne += getNumber(line)
 		sumPartTwo += getNumberPEG(line)
 	}
-	fmt.Printf("Part one solution: %d\nPart two solution: %d \n", sumPartOne, sumPartTwo)
+
+	if !silent {
+		fmt.Printf("Part one solution: %d\nPart two solution: %d \n", sumPartOne, sumPartTwo)
+	}
 }
 
 func getNumber(line string) int {
