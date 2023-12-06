@@ -22,13 +22,6 @@ func (r rule) apply(factor int) int {
 	return factor
 }
 
-func (r rule) revers(dest int) int {
-	if r.destination+r.span <= dest || r.destination > dest {
-		return dest
-	}
-	return dest - r.destination + r.source
-}
-
 func Solve(silent bool) {
 	file, err := os.Open("day5/input.txt")
 	if err != nil {
@@ -71,7 +64,6 @@ func Solve(silent bool) {
 }
 
 func lowestLocasonBackwards(rules [][]rule, sed []int) int {
-
 	for i, j := 0, len(rules)-1; i < j; i, j = i+1, j-1 {
 		rules[i], rules[j] = rules[j], rules[i]
 	}
@@ -84,11 +76,8 @@ func lowestLocasonBackwards(rules [][]rule, sed []int) int {
 
 		for _, ruleList := range rules {
 			for _, rule := range ruleList {
-
-				newNum := rule.revers(num)
-				if newNum != num {
-					num = newNum
-					break
+				if rule.destination+rule.span >= num && rule.destination <= num {
+					num = num - rule.destination + rule.source
 				}
 			}
 		}
