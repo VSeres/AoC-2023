@@ -37,6 +37,7 @@ var lineValues = []int{
 	76,
 	38,
 	11,
+	11,
 }
 
 func TestPartTwo(t *testing.T) {
@@ -59,7 +60,7 @@ func TestPartTwo(t *testing.T) {
 		sum += num
 	}
 
-	const result = 281 + 38 + 11
+	const result = 281 + 38 + 11 + 11
 	if sum != result {
 		t.Errorf("Invalid sum %d should be %d", sum, result)
 	}

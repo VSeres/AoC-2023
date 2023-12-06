@@ -9,10 +9,9 @@ import (
 )
 
 var digit = regexp.MustCompile(`\d`)
-var all = regexp.MustCompile(`\d|one|two|three|four|five|six|seven|eight|nine`)
 
 func Solve(silent bool) {
-	file, err := os.Open("day1/test_input_2.txt")
+	file, err := os.Open("day1/input.txt")
 	if err != nil {
 		panic(err)
 	}
@@ -37,7 +36,7 @@ func Solve(silent bool) {
 }
 
 func partTwo(line string) int {
-	lastIndex := 0
+	lastIndex := -999
 	lastValue := 0
 	firstIndex := 999
 	firstValue := 0
@@ -53,7 +52,8 @@ func partTwo(line string) int {
 			firstValue = v
 		}
 	}
-	return firstValue*10 + lastValue
+	res := firstValue*10 + lastValue
+	return res
 }
 
 func partOne(line string) int {
