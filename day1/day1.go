@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strconv"
 	"unicode"
 )
 
@@ -32,54 +31,48 @@ func Solve(silent bool) {
 }
 
 func getNumber(line string) int {
-	numberString := ""
-	var lastChar rune
+	firstNum := 0
+	lastNum := 0
 	for _, char := range line {
 		if !unicode.IsDigit(char) {
 			continue
 		}
-
-		if numberString == "" {
-			numberString += string(char)
+		num := int(char - '0')
+		if firstNum == 0 {
+			firstNum += num
 		}
-		lastChar = char
+		lastNum = num
 	}
 
-	numberString += string(lastChar)
-
-	num, err := strconv.Atoi(numberString)
-	if err != nil {
-		panic(err)
-	}
-	return num
+	return firstNum*10 + lastNum
 }
 
-var numbers map[string]string = map[string]string{
-	"one":   "1",
-	"two":   "2",
-	"three": "3",
-	"four":  "4",
-	"five":  "5",
-	"six":   "6",
-	"seven": "7",
-	"eight": "8",
-	"nine":  "9",
+var numbers = map[string]int{
+	"one":   1,
+	"two":   2,
+	"three": 3,
+	"four":  4,
+	"five":  5,
+	"six":   6,
+	"seven": 7,
+	"eight": 8,
+	"nine":  9,
 }
 
 func getNumberPEG(line string) int {
 	var buff string
 
 	var (
-		first string
-		last  string
+		first int
+		last  int
 	)
 
 	for _, char := range line {
-		var num string
+		var num int
 
 		if unicode.IsDigit(char) {
 			buff = ""
-			num = string(char)
+			num = int(char - '0')
 		} else {
 			buff += string(char)
 			lookup, ok := numbers[buff]
@@ -99,18 +92,14 @@ func getNumberPEG(line string) int {
 			}
 		}
 
-		if num == "" {
+		if num == 0 {
 			continue
-		} else if first == "" {
+		} else if first == 0 {
 			first = num
 		}
 		last = num
 
 	}
 
-	result, err := strconv.Atoi(first + last)
-	if err != nil {
-		panic(err)
-	}
-	return result
+	return first*10 + last
 }
