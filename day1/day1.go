@@ -4,11 +4,15 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"unicode"
+	"regexp"
+	"strings"
 )
 
+var digit = regexp.MustCompile(`\d`)
+var all = regexp.MustCompile(`\d|one|two|three|four|five|six|seven|eight|nine`)
+
 func Solve(silent bool) {
-	file, err := os.Open("day1/input.txt")
+	file, err := os.Open("day1/test_input_2.txt")
 	if err != nil {
 		panic(err)
 	}
@@ -19,10 +23,12 @@ func Solve(silent bool) {
 		sumPartOne int
 		sumPartTwo int
 	)
+
 	for scanner.Scan() {
 		line := scanner.Text()
-		sumPartOne += getNumber(line)
-		sumPartTwo += getNumberPEG(line)
+		sumPartOne += partOne(line)
+
+		sumPartTwo += partTwo(line)
 	}
 
 	if !silent {
@@ -30,21 +36,31 @@ func Solve(silent bool) {
 	}
 }
 
-func getNumber(line string) int {
-	firstNum := 0
-	lastNum := 0
-	for _, char := range line {
-		if !unicode.IsDigit(char) {
-			continue
+func partTwo(line string) int {
+	lastIndex := 0
+	lastValue := 0
+	firstIndex := 999
+	firstValue := 0
+	for k, v := range numbers {
+		firstI := strings.Index(line, k)
+		lastI := strings.LastIndex(line, k)
+		if lastI > lastIndex {
+			lastIndex = lastI
+			lastValue = v
 		}
-		num := int(char - '0')
-		if firstNum == 0 {
-			firstNum += num
+		if firstI >= 0 && firstI < firstIndex {
+			firstIndex = firstI
+			firstValue = v
 		}
-		lastNum = num
 	}
+	return firstValue*10 + lastValue
+}
 
-	return firstNum*10 + lastNum
+func partOne(line string) int {
+	match := digit.FindAllString(line, -1)
+	first := int(match[0][0] - '0')
+	last := int(match[len(match)-1][0] - '0')
+	return first*10 + last
 }
 
 var numbers = map[string]int{
@@ -57,49 +73,13 @@ var numbers = map[string]int{
 	"seven": 7,
 	"eight": 8,
 	"nine":  9,
-}
-
-func getNumberPEG(line string) int {
-	var buff string
-
-	var (
-		first int
-		last  int
-	)
-
-	for _, char := range line {
-		var num int
-
-		if unicode.IsDigit(char) {
-			buff = ""
-			num = int(char - '0')
-		} else {
-			buff += string(char)
-			lookup, ok := numbers[buff]
-			// because of gibersih charaters
-			if len(buff) > 3 && !ok {
-				for i := 1; i <= len(buff)-3; i++ {
-					lookup, ok = numbers[buff[i:]]
-					if ok {
-						break
-					}
-				}
-			}
-			if ok {
-				num = lookup
-				// Keep the last letter, because another one can start with it
-				buff = buff[len(buff)-1:]
-			}
-		}
-
-		if num == 0 {
-			continue
-		} else if first == 0 {
-			first = num
-		}
-		last = num
-
-	}
-
-	return first*10 + last
+	"1":     1,
+	"2":     2,
+	"3":     3,
+	"4":     4,
+	"5":     5,
+	"6":     6,
+	"7":     7,
+	"8":     8,
+	"9":     9,
 }

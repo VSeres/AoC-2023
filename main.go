@@ -19,7 +19,6 @@ func init() {
 }
 
 func main() {
-	// day5.Solve(false)
 	flag.Parse()
 	start := time.Now()
 	switch day {

@@ -6,8 +6,8 @@ import (
 	"testing"
 )
 
-func TestGetNumber(t *testing.T) {
-	file, err := os.Open("test-input_1.txt")
+func TestPartOne(t *testing.T) {
+	file, err := os.Open("test_input_1.txt")
 	if err != nil {
 		t.Fatalf("Faild to open file: %s", err)
 	}
@@ -18,7 +18,7 @@ func TestGetNumber(t *testing.T) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		sum += getNumber(line)
+		sum += partOne(line)
 	}
 
 	const result = 142
@@ -39,8 +39,8 @@ var lineValues = []int{
 	11,
 }
 
-func TestGetNumberPEG(t *testing.T) {
-	file, err := os.Open("test-input_2.txt")
+func TestPartTwo(t *testing.T) {
+	file, err := os.Open("test_input_2.txt")
 	if err != nil {
 		t.Fatalf("Faild to open file: %s", err)
 	}
@@ -51,7 +51,7 @@ func TestGetNumberPEG(t *testing.T) {
 	i := 0
 	for scanner.Scan() {
 		line := scanner.Text()
-		num := getNumberPEG(line)
+		num := partTwo(line)
 		if lineValues[i] != num {
 			t.Errorf("Invalid sum %d should be %d", num, lineValues[i])
 		}
