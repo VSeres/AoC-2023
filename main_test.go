@@ -7,6 +7,7 @@ import (
 	"AoC-2023/day4"
 	"AoC-2023/day5"
 	"AoC-2023/day6"
+	"AoC-2023/day7"
 	"testing"
 )
 
@@ -43,5 +44,11 @@ func BenchmarkDay5(b *testing.B) {
 func BenchmarkDay6(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		day6.Solve(true)
+	}
+}
+
+func BenchmarkDay7(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		day7.Solve(true)
 	}
 }
