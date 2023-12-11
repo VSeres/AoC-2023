@@ -8,6 +8,7 @@ import (
 	"AoC-2023/day5"
 	"AoC-2023/day6"
 	"AoC-2023/day7"
+	"AoC-2023/day8"
 	"flag"
 	"fmt"
 	"time"
@@ -37,6 +38,8 @@ func main() {
 		day6.Solve(false)
 	case 7:
 		day7.Solve(false)
+	case 8:
+		day8.Solve(false)
 	default:
 		fmt.Printf("day %d not implemented\n", day)
 	}
