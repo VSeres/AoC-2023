@@ -71,7 +71,6 @@ func Solve(silent bool) {
 		gameId++
 	}
 	if !silent {
-		fmt.Println("Part one result: ", result)
-		fmt.Println("Part two result: ", powerSum)
+		fmt.Printf("Part one result: %d\nPart two result: %d\n", result, powerSum)
 	}
 }

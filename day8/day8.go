@@ -40,12 +40,14 @@ func Solve(silent bool) {
 		nodes[key] = newNode
 	}
 
-	steps := partOne(directions, nodes)
-	fmt.Println(steps)
+	partOne := partOne(directions, nodes)
 
-	steps = partTwo(startNodes, nodes, directions)
+	partTwo := partTwo(startNodes, nodes, directions)
 
-	fmt.Println(steps)
+	if !silent {
+		fmt.Printf("Steps\n\tpart one: %d\n\tpart two: %d\n", partOne, partTwo)
+	}
+
 }
 
 func partOne(directions string, nodes map[string]node) int {
