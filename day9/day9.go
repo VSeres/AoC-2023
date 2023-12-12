@@ -25,10 +25,7 @@ func Solve(silent bool) {
 		i := 0
 		for !finished {
 			c := changes[i]
-			// if len(c) == 1 {
-			// 	changes = append(changes, make([]int, 1))
-			// 	break
-			// }
+
 			nextSeriesLen := len(c) - 1
 			arr := make([]int, nextSeriesLen)
 			zeroCount := calcChanges(c, arr)
@@ -40,13 +37,13 @@ func Solve(silent bool) {
 			i++
 		}
 
-		// calculate last element
-
 		futureSum += extrapolateFutuere(changes)
 		pastSum += extrapolatePast(changes)
-		prettyPrint(changes)
+		// prettyPrint(changes)
 	}
-	fmt.Println(futureSum, pastSum)
+	if !silent {
+		fmt.Printf("extrapolation results:\n\tfuture: %d\n\tpast: %d\n", futureSum, pastSum)
+	}
 }
 
 func extrapolateFutuere(changes [][]int) int {
