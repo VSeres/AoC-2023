@@ -15,7 +15,8 @@ func Solve(silent bool) {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	valueSum := 0
+	futureSum := 0
+	pastSum := 0
 	for scanner.Scan() {
 		changes := make([][]int, 0)
 		changeSeries := readNumbers(scanner)
@@ -28,21 +29,42 @@ func Solve(silent bool) {
 			// 	changes = append(changes, make([]int, 1))
 			// 	break
 			// }
-			arr := make([]int, len(c)-1)
+			nextSeriesLen := len(c) - 1
+			arr := make([]int, nextSeriesLen)
 			zeroCount := calcChanges(c, arr)
+			finished = zeroCount == nextSeriesLen
+			if nextSeriesLen == 0 {
+				break
+			}
 			changes = append(changes, arr)
-			finished = zeroCount == len(changes[i+1])
 			i++
 		}
+
 		// calculate last element
-		prevChange := 0
-		for j := len(changes) - 2; j >= 0; j-- {
-			prevChange += changes[j][len(changes[j])-1]
-		}
-		valueSum += prevChange
+
+		futureSum += extrapolateFutuere(changes)
+		pastSum += extrapolatePast(changes)
 		prettyPrint(changes)
 	}
-	fmt.Println(valueSum)
+	fmt.Println(futureSum, pastSum)
+}
+
+func extrapolateFutuere(changes [][]int) int {
+	prevChange := 0
+	for j := len(changes) - 1; j >= 0; j-- {
+		prevChange += changes[j][len(changes[j])-1]
+	}
+
+	return prevChange
+}
+
+func extrapolatePast(changes [][]int) int {
+	prevChange := 0
+	for j := len(changes) - 1; j >= 0; j-- {
+		prevChange = changes[j][0] - prevChange
+	}
+
+	return prevChange
 }
 
 func calcChanges(c []int, arr []int) int {
@@ -57,7 +79,7 @@ func calcChanges(c []int, arr []int) int {
 	return prevChange
 }
 
-const numPadding = 4
+const numPadding = 2
 
 func prettyPrint(nums [][]int) {
 	builder := new(strings.Builder)
@@ -68,7 +90,7 @@ func prettyPrint(nums [][]int) {
 			builder.WriteString(strings.Repeat(" ", padding*numPadding))
 		}
 		for _, num := range line {
-			fmt.Fprintf(builder, "%4d  ", num)
+			fmt.Fprintf(builder, "%2d  ", num)
 		}
 		builder.WriteByte('\n')
 	}
@@ -78,13 +100,23 @@ func prettyPrint(nums [][]int) {
 func readNumbers(scanner *bufio.Scanner) []int {
 	n := 0
 	change := make([]int, 0)
+	negative := false
 	for _, v := range scanner.Bytes() {
 		if v == ' ' {
+			if negative {
+				n = -n
+			}
 			change = append(change, n)
+			negative = false
 			n = 0
+		} else if v == '-' {
+			negative = true
 		} else {
 			n = n*10 + int(v-'0')
 		}
+	}
+	if negative {
+		n = -n
 	}
 	change = append(change, n)
 	return change
