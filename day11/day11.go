@@ -7,8 +7,10 @@ import (
 )
 
 type galaxy struct {
-	x int
-	y int
+	x          int
+	y          int
+	alternateX int
+	alternateY int
 }
 
 func Solve(silent bool) {
@@ -63,19 +65,27 @@ func Solve(silent bool) {
 	for i, g := range galaxies {
 		galaxies[i].x += xOffset[g.x]
 		galaxies[i].y += yOffset[g.y]
+		// part two
+		galaxies[i].alternateX = g.x + xOffset[g.x]*(1000000-1) // ther are 1000000-1 new lines
+		galaxies[i].alternateY = g.y + yOffset[g.y]*(1000000-1)
 	}
-	sum := 0
+
+	youngSum := 0
+	oldSum := 0
 	for i := 0; i < len(galaxies)-1; i++ {
 		for j := i + 1; j < len(galaxies); j++ {
-			sum += manhattanDistance(galaxies[i], galaxies[j])
+			g1 := galaxies[i]
+			g2 := galaxies[j]
+			youngSum += manhattanDistance(g1.x, g2.x, g1.y, g2.y)
+			oldSum += manhattanDistance(g1.alternateX, g2.alternateX, g1.alternateY, g2.alternateY)
 		}
 	}
-	fmt.Println(sum)
+	fmt.Println(youngSum, oldSum)
 }
 
-func manhattanDistance(g1, g2 galaxy) int {
-	x := g1.x - g2.x
-	y := g1.y - g2.y
+func manhattanDistance(x1, x2, y1, y2 int) int {
+	x := x1 - x2
+	y := y1 - y2
 	if x < 0 {
 		x = -x
 	}
