@@ -2,6 +2,7 @@ package main
 
 import (
 	"AoC-2023/day1"
+	"AoC-2023/day10"
 	"AoC-2023/day2"
 	"AoC-2023/day3"
 	"AoC-2023/day4"
@@ -22,6 +23,7 @@ func init() {
 }
 
 func main() {
+	// day10.Solve(false)
 	flag.Parse()
 	start := time.Now()
 	switch day {
@@ -43,6 +45,8 @@ func main() {
 		day8.Solve(false)
 	case 9:
 		day9.Solve(false)
+	case 10:
+		day10.Solve(false)
 	default:
 		fmt.Printf("day %d not implemented\n", day)
 	}
