@@ -1,138 +1,155 @@
 package day7
 
 import (
-	"bufio"
 	"fmt"
+	"io"
 	"os"
+	"sort"
 )
 
-type match struct {
-	hand string
-	bid  int
-	rank byte
+type round struct {
+	Hand     string
+	Bet      int
+	Strength strength
+	partTwo  strength
 }
 
-const cardCount = 5
+type strength int
 
 func Solve(silent bool) {
+	var err error
 	file, err := os.Open("day7/input.txt")
 	if err != nil {
 		panic(err)
 	}
 	defer file.Close()
 
-	scanner := bufio.NewScanner(file)
+	hands := make([]round, 0)
 
-	matches := make([]match, 0, 1024)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		var opt match
-		fmt.Sscan(line, &opt.hand, &opt.bid)
-
-		repeating := [2]byte{}
-		var firstMatch byte
-		for i := 0; i < cardCount-1; i++ {
-			for j := i + 1; j < cardCount; j++ {
-				if opt.hand[i] == opt.hand[j] {
-					if firstMatch == 0 {
-						firstMatch = opt.hand[i]
-					}
-					if opt.hand[i] == firstMatch {
-						repeating[0] += 1
-					} else {
-						repeating[1] += 1
-					}
-
-					break
-				}
-			}
+	for {
+		r := round{}
+		_, err = fmt.Fscanf(file, "%s %d\n", &r.Hand, &r.Bet)
+		if err != nil {
+			break
 		}
+		r.Strength = calcStrength(r.Hand, false)
+		r.partTwo = calcStrength(r.Hand, true)
 
-		if repeating[0] < repeating[1] {
-			repeating[0], repeating[1] = repeating[1], repeating[0]
-		}
-
-		repeating[0] += 1
-		repeating[1] += 1
-
-		if repeating[0] == 5 {
-			opt.rank = 1
-		} else if repeating[0] == 4 {
-			opt.rank = 2
-		} else if repeating[0] == 3 && repeating[1] == 2 {
-			opt.rank = 3
-		} else if repeating[0] == 3 {
-			opt.rank = 4
-		} else if repeating[0] == 2 && repeating[1] == 2 {
-			opt.rank = 5
-		} else if repeating[0] == 2 {
-			opt.rank = 6
-		} else {
-			opt.rank = 7
-		}
-
-		matches = append(matches, opt)
+		hands = append(hands, r)
 	}
-	sort(matches)
-	winnings := 0
 
-	for rank, opt := range matches {
-		winnings += (rank + 1) * opt.bid
+	if err != io.EOF {
+		fmt.Println(err)
+		return
 	}
-	if !silent {
-		fmt.Println(winnings)
-	}
+
+	calcWinnings(hands, false)
+	calcWinnings(hands, true)
 }
 
-func sort(matches []match) {
-	n := len(matches)
-	newn := 0
-	swap := true
-	for swap {
-		swap = false
-		for i := 1; i <= n-1; i++ {
-			if compare(matches[i-1], matches[i]) {
-				matches[i-1], matches[i] = matches[i], matches[i-1]
-				newn = i
-				swap = true
-			}
-		}
-		n = newn
+func calcWinnings(hands []round, partTwo bool) {
+	sort.Slice(hands, func(i, j int) bool {
+		return !comapre(hands[i], hands[j], partTwo)
+	})
+
+	var winnings int
+
+	for i, r := range hands {
+		winnings += (i + 1) * r.Bet
 	}
+
+	fmt.Println(winnings)
 }
 
-func compare(a match, b match) bool {
-	if a.rank < b.rank {
-		return true
-	} else if a.rank == b.rank {
-		for i := 0; i < 5; i++ {
-			aValue := getValue(a.hand[i])
-			bValue := getValue(b.hand[i])
-			if aValue > bValue {
-				return true
-			} else if bValue > aValue {
-				return false
-			}
-		}
-		panic("same")
+// return true if a is better than b
+func comapre(a round, b round, partTwo bool) bool {
+	if partTwo && a.partTwo != b.partTwo {
+		return a.partTwo > b.partTwo
 	}
+	if !partTwo && a.Strength != b.Strength {
+		return a.Strength > b.Strength
+	}
+
+	for i := 0; i < 5; i++ {
+		aValue := getCardValue(rune(a.Hand[i]), partTwo)
+		bValue := getCardValue(rune(b.Hand[i]), partTwo)
+		if aValue != bValue {
+			return aValue > bValue
+		}
+	}
+
 	return false
 }
 
-func getValue(a byte) byte {
-	switch a {
-	case 'T':
-		return 58
+// calculate hand strength
+func calcStrength(hand string, partTwo bool) strength {
+	chars := make(map[rune]int, 5)
+	for _, card := range hand {
+		chars[card] += 1
+	}
+
+	countA := 0
+	countB := 0
+
+	for k, v := range chars {
+		if partTwo && k == 'J' {
+			continue
+		}
+		if v >= countA {
+			countB = countA
+			countA = v
+		} else if v > countB {
+			countB = v
+		}
+	}
+
+	if partTwo {
+		countA += chars['J']
+	}
+
+	// 5 same
+	if countA == 5 {
+		return 7
+	}
+	// poker
+	if countA == 4 {
+		return 6
+	}
+	// full house
+	if countA == 3 && countB == 2 {
+		return 5
+	}
+	// drill
+	if countA == 3 {
+		return 4
+	}
+	// two pairs
+	if countA == 2 && countB == 2 {
+		return 3
+	}
+	// pair
+	if countA == 2 {
+		return 2
+	}
+	return 1
+}
+
+func getCardValue(card rune, partTwo bool) byte {
+	switch card {
 	case 'J':
-		return 59
+		if partTwo {
+			return 1
+		}
+		return 11
+	case 'T':
+		return 10
 	case 'Q':
-		return 60
+		return 12
 	case 'K':
-		return 61
+		return 13
 	case 'A':
-		return 62
+		return 14
 	default:
-		return a
+		return byte(card) - '0'
 	}
 }
