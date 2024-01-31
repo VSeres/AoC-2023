@@ -19,7 +19,8 @@ func Solve() {
 		groupsData []byte
 	)
 
-	sum := 0
+	sumPartOne := 0
+	sumPartTwo := 0
 
 	for {
 		_, err = fmt.Fscanln(file, &spring, &groupsData)
@@ -44,12 +45,36 @@ func Solve() {
 		groups = append(groups, num)
 		total += num
 
-		fmt.Println("---")
-		c := find(spring, groups, 0, total, "")
-		sum += c
-		fmt.Println(string(spring), string(groupsData), "  ", c)
+		//part one
+		// sumPartOne += find(spring, groups, 0, total, "")
+		evictCache()
+		// part two
+		part := partTwo(spring, groups, total)
+		sumPartTwo += part
+		evictCache()
 	}
-	fmt.Println(sum)
+	fmt.Println(sumPartOne, sumPartTwo)
+}
+
+func evictCache() {
+	for ck := range cache {
+		delete(cache, ck)
+	}
+}
+
+func partTwo(spring []byte, groups []int, total int) int {
+	unfolded := make([]byte, 0, len(spring)*5+4)
+	unfolded = append(unfolded, spring...)
+	unfoldedGroup := make([]int, 0, len(groups)*5)
+	for i := 0; i < 4; i++ {
+		unfolded = append(unfolded, '?')
+		unfolded = append(unfolded, spring...)
+		unfoldedGroup = append(unfoldedGroup, groups...)
+
+	}
+	unfoldedGroup = append(unfoldedGroup, groups...)
+	fmt.Printf("%s %v\n", string(unfolded), unfoldedGroup)
+	return find(unfolded, unfoldedGroup, 0, total*5, "")
 }
 
 func countSprings(list []byte, offset int) int {
@@ -66,7 +91,21 @@ func countSprings(list []byte, offset int) int {
 	return count
 }
 
+type cKey struct {
+	a int
+	b int
+}
+
+var cache = make(map[string]int, 0)
+
 func find(spring []byte, group []int, i int, total int, option string) int {
+	// key := cKey{
+	// 	a: len(group),
+	// 	b: i,
+	// }
+	if v, ok := cache[option]; ok {
+		return v
+	}
 	if countSprings(spring, i) > 0 && len(group) == 0 { // no more groups, but there are still springs
 		return 0
 	}
@@ -76,13 +115,10 @@ func find(spring []byte, group []int, i int, total int, option string) int {
 	}
 
 	if len(group) == 0 {
-
-		if strings.Count(option, "#") > total {
+		c := strings.Count(option, "#")
+		if c > total {
 			return 0
 		}
-
-		fmt.Println(option)
-
 		return 1
 	}
 
@@ -122,6 +158,6 @@ func find(spring []byte, group []int, i int, total int, option string) int {
 	}
 
 	res += find(spring, group, i+1, total, option+skipped+string(spring[i]))
-
+	cache[option] = res
 	return res
 }
