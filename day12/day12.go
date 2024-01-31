@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 func Solve() {
@@ -29,96 +30,94 @@ func Solve() {
 		}
 
 		groups := make([]int, 0, 32)
+		num := 0
+		total := 0
 		for _, v := range groupsData {
 			if v != ',' {
-				groups = append(groups, int(v-'0'))
+				num = num*10 + int(v-'0')
+			} else {
+				groups = append(groups, num)
+				total += num
+				num = 0
 			}
+		}
+		groups = append(groups, num)
+		total += num
 
-		}
 		fmt.Println("---")
-		c := find(spring, groups, 0)
+		c := find(spring, groups, 0, "")
 		sum += c
-		fmt.Println("hit:", hit, "lookup:", lookup)
-		hit = 0
-		lookup = 0
 		fmt.Println(string(spring), string(groupsData), "  ", c)
-		for k := range cache {
-			delete(cache, k)
-		}
 	}
 	fmt.Println(sum)
 }
 
-type key struct {
-	g int
-	i int
-}
-
-var cache = make(map[key]int, 0)
-var (
-	lookup = 0
-	hit    = 0
-)
-
-func find(springs []byte, groups []int, i int) int {
-	key := key{g: len(groups), i: i}
-	lookup++
-	if v, ok := cache[key]; ok {
-		hit++
-		return v
-	}
-
-	if len(groups) == 0 && len(springs) >= i && countSprings(springs[i:]) > 0 { // no more groups, but there are still springs
-		return 0
-	} else if len(groups) == 0 { // no more groups and springs
-		return 1
-	} else if groups[0] >= len(springs) { // next group is bigger than the length
-		return 0
-	}
-
-	if i >= len(springs) && len(groups) > 0 { // no more groups, but there are still springs ??????
-		return 0
-	}
-
-	for springs[i] != '#' && springs[i] != '?' {
-		i++
-		if len(springs) <= i {
-			return 0
-		}
-	}
-
-	g := groups[0]
-	if g+i > len(springs) { // not enough space for group
-		return 0
-	}
-	fits := true
-	for j := i; j < i+g; j++ {
-		if springs[j] == '.' {
-			// cannot fit
-			fits = false
-			break
-		}
-	}
-	lookahead := i+g >= len(springs) || springs[i+g] == '?' || springs[i+g] == '.'
-	var res int
-	if fits && lookahead {
-		res = find(springs, groups[1:], i+g+1)
-	}
-
-	if springs[i] == '?' {
-		res += find(springs, groups, i+1)
-	}
-	cache[key] = res
-	return res
-}
-
-func countSprings(list []byte) int {
+func countSprings(list []byte, offset int) int {
 	count := 0
-	for _, v := range list {
+	if offset >= len(list) {
+		return 0
+	}
+	for _, v := range list[offset:] {
 		if v == '#' {
 			count++
 		}
 	}
-	return count
 
+	return count
+}
+
+func find(spring []byte, group []int, i int, option string) int {
+	if countSprings(spring, i) > 0 && len(group) == 0 { // no more groups, but there are still springs
+		return 0
+	}
+
+	if len(group) > 0 && len(spring) <= i { // no more springs, but there are still groups
+		return 0
+	}
+
+	if len(group) == 0 {
+
+		fmt.Println(option)
+
+		return 1
+	}
+
+	skipped := ""
+	// next valid position
+	for spring[i] != '?' && spring[i] != '#' {
+		i += 1
+		skipped += "."
+		if i >= len(spring) {
+			return 0
+		}
+	}
+
+	g := group[0]
+	// inster group
+	if len(spring) < i+g { // cannot fit group
+		return 0
+	}
+
+	fits := true
+	for j := i; j < i+g; j++ {
+		if spring[j] == '.' {
+			fits = false
+			break
+		}
+	}
+
+	lookAhead := len(spring) <= i+g || spring[i+g] != '#'
+	lookBehind := i-1 < 0 || spring[i-1] != '#' // alway true if in the previous run a group was used
+	res := 0
+	if fits && lookAhead && lookBehind {
+		a := ""
+		if len(spring) > i+g {
+			a = string(spring[i+g])
+		}
+		res = find(spring, group[1:], i+g+1, option+skipped+strings.Repeat("#", g)+a)
+	}
+
+	res += find(spring, group, i+1, option+skipped+string(spring[i]))
+
+	return res
 }
