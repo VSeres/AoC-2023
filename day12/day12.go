@@ -45,7 +45,7 @@ func Solve() {
 		total += num
 
 		fmt.Println("---")
-		c := find(spring, groups, 0, "")
+		c := find(spring, groups, 0, total, "")
 		sum += c
 		fmt.Println(string(spring), string(groupsData), "  ", c)
 	}
@@ -66,7 +66,7 @@ func countSprings(list []byte, offset int) int {
 	return count
 }
 
-func find(spring []byte, group []int, i int, option string) int {
+func find(spring []byte, group []int, i int, total int, option string) int {
 	if countSprings(spring, i) > 0 && len(group) == 0 { // no more groups, but there are still springs
 		return 0
 	}
@@ -76,6 +76,10 @@ func find(spring []byte, group []int, i int, option string) int {
 	}
 
 	if len(group) == 0 {
+
+		if strings.Count(option, "#") > total {
+			return 0
+		}
 
 		fmt.Println(option)
 
@@ -114,10 +118,10 @@ func find(spring []byte, group []int, i int, option string) int {
 		if len(spring) > i+g {
 			a = string(spring[i+g])
 		}
-		res = find(spring, group[1:], i+g+1, option+skipped+strings.Repeat("#", g)+a)
+		res = find(spring, group[1:], i+g+1, total, option+skipped+strings.Repeat("#", g)+a)
 	}
 
-	res += find(spring, group, i+1, option+skipped+string(spring[i]))
+	res += find(spring, group, i+1, total, option+skipped+string(spring[i]))
 
 	return res
 }
